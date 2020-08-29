@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"strconv"
 	"sync"
 	"time"
@@ -26,28 +28,34 @@ func main() {
 	var j string
 	fmt.Scanln(&j)
 
-	concurrentFunc(w, j)
+	totalWorkers, _ := strconv.Atoi(w)
+	totalJobs, _ := strconv.Atoi(j)
+
+	concurrentFunc(totalWorkers, totalJobs)
 }
 
-func concurrentFunc(noOfWorkers string, noOfjobs string) {
-	totalWorkers, _ := strconv.Atoi(noOfWorkers)
-	totalJobs, _ := strconv.Atoi(noOfjobs)
+func concurrentFunc(noOfWorkers int, noOfjobs int) (result int) {
+
+	//Negative check
+	if (math.Signbit(float64(noOfWorkers)) == true) || (math.Signbit(float64(noOfjobs)) == true) {
+		errors.New("Negative numbers are not allowed")
+		return -1
+	}
 
 	start := time.Now()
 	var jobs []Job
-	for i := 0; i < totalJobs; i++ {
+	for i := 0; i < noOfjobs; i++ {
 		jobs = append(jobs, Job{Id: i})
 	}
 
-	var NumberOfWorkers = totalWorkers
 	var wg sync.WaitGroup
 
-	wg.Add(NumberOfWorkers)
+	wg.Add(noOfWorkers)
 	jobChannel := make(chan Job)
 	jobResultChannel := make(chan JobResult, len(jobs))
 
 	// Start the workers
-	for i := 0; i < NumberOfWorkers; i++ {
+	for i := 0; i < noOfWorkers; i++ {
 		go worker(i, &wg, jobChannel, jobResultChannel)
 	}
 
@@ -67,8 +75,9 @@ func concurrentFunc(noOfWorkers string, noOfjobs string) {
 	}
 
 	fmt.Printf("Total jobs completed %d\n", len(jobResults))
-	fmt.Printf("Took %s", time.Since(start))
-	fmt.Println()
+	fmt.Printf("Took %s\n", time.Since(start))
+
+	return len(jobResults)
 
 }
 
@@ -80,7 +89,7 @@ func worker(id int, wg *sync.WaitGroup, jobChannel <-chan Job, resultChannel cha
 }
 
 func startWork(workerId int, job Job) JobResult {
-	fmt.Printf("Worker #%d Running job #%d\n", workerId, job.Id)
-	time.Sleep(500 * time.Millisecond)
+	//fmt.Printf("Worker #%d Running job %d\n", workerId, job.Id)
+	time.Sleep(50 * time.Millisecond)
 	return JobResult{Output: "Success"}
 }
