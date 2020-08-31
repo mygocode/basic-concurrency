@@ -1,6 +1,6 @@
 # Concurrency with Go
 
-The purpose of this simple program is to write the concurrency code with Go. `GoRoutines`, `WaitGroups` and `Channels` are the tools Go provides for concurrency.   
+The purpose of this simple program is to implement he concurrency code with Go. `GoRoutines`, `WaitGroups` and `Channels` are the tools Go provides for concurrency.   
 This program is creating some Jobs and those jobs are performed by some Workers. Users will provide the workers and jobs data to the program.   
 First we will start the workers concurrently and they will wait to receive data from the channel. Please check the worker().
 
